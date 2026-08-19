@@ -1,0 +1,22 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Java / Maven
+backend/target/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS generated files
+.DS_Store
+Thumbs.db
