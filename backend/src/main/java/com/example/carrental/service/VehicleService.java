@@ -2,10 +2,10 @@ package com.example.carrental.service;
 
 import com.example.carrental.dto.VehicleRequest;
 import com.example.carrental.entity.Vehicle;
+import com.example.carrental.exception.DuplicateResourceException;
+import com.example.carrental.exception.ResourceNotFoundException;
 import com.example.carrental.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
-import com.example.carrental.exception.ResourceNotFoundException;
-import com.example.carrental.exception.DuplicateResourceException;
 
 import java.util.List;
 
@@ -43,7 +43,9 @@ public class VehicleService {
     public Vehicle getVehicleById(Long id) {
         return vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Vehicle not found with id: " + id)
+                        new ResourceNotFoundException(
+                                "Vehicle not found with id: " + id
+                        )
                 );
     }
 
@@ -52,6 +54,7 @@ public class VehicleService {
 
         if (!existingVehicle.getRegNumber().equals(request.getRegNumber())
                 && vehicleRepository.existsByRegNumber(request.getRegNumber())) {
+
             throw new DuplicateResourceException(
                     "Vehicle with registration number "
                             + request.getRegNumber()

@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.carrental.dto.VehicleRequest;
 import jakarta.validation.Valid;
+import com.example.carrental.dto.BookingResponse;
+import com.example.carrental.entity.Booking;
+import com.example.carrental.service.BookingService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +18,14 @@ import java.util.List;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+    private final BookingService bookingService;
 
-    public VehicleController(VehicleService vehicleService) {
+    public VehicleController(
+            VehicleService vehicleService,
+            BookingService bookingService
+    ) {
         this.vehicleService = vehicleService;
+        this.bookingService = bookingService;
     }
 
     @PostMapping
@@ -36,6 +44,19 @@ public class VehicleController {
     @GetMapping("/{id}")
     public ResponseEntity<Vehicle> getVehicleById(@PathVariable Long id) {
         return ResponseEntity.ok(vehicleService.getVehicleById(id));
+    }
+
+    @GetMapping("/{vehicleId}/bookings")
+    public ResponseEntity<List<BookingResponse>> getBookingsByVehicleId(
+            @PathVariable Long vehicleId
+    ) {
+        List<BookingResponse> responses = bookingService
+                .getBookingsByVehicleId(vehicleId)
+                .stream()
+                .map(BookingResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(responses);
     }
 
     @PutMapping("/{id}")
