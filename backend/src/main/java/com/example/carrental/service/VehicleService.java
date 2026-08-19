@@ -1,8 +1,11 @@
 package com.example.carrental.service;
 
+import com.example.carrental.dto.VehicleRequest;
 import com.example.carrental.entity.Vehicle;
 import com.example.carrental.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
+import com.example.carrental.exception.ResourceNotFoundException;
+import com.example.carrental.exception.DuplicateResourceException;
 
 import java.util.List;
 
@@ -15,12 +18,20 @@ public class VehicleService {
         this.vehicleRepository = vehicleRepository;
     }
 
-    public Vehicle createVehicle(Vehicle vehicle) {
-        if (vehicleRepository.existsByRegNumber(vehicle.getRegNumber())) {
-            throw new IllegalArgumentException(
-                    "Vehicle with registration number " + vehicle.getRegNumber() + " already exists"
+    public Vehicle createVehicle(VehicleRequest request) {
+        if (vehicleRepository.existsByRegNumber(request.getRegNumber())) {
+            throw new DuplicateResourceException(
+                    "Vehicle with registration number "
+                            + request.getRegNumber()
+                            + " already exists"
             );
         }
+
+        Vehicle vehicle = new Vehicle(
+                request.getRegNumber(),
+                request.getModel(),
+                request.getDailyRate()
+        );
 
         return vehicleRepository.save(vehicle);
     }
@@ -32,23 +43,25 @@ public class VehicleService {
     public Vehicle getVehicleById(Long id) {
         return vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Vehicle not found with id: " + id)
+                        new ResourceNotFoundException("Vehicle not found with id: " + id)
                 );
     }
 
-    public Vehicle updateVehicle(Long id, Vehicle updatedVehicle) {
+    public Vehicle updateVehicle(Long id, VehicleRequest request) {
         Vehicle existingVehicle = getVehicleById(id);
 
-        if (!existingVehicle.getRegNumber().equals(updatedVehicle.getRegNumber())
-                && vehicleRepository.existsByRegNumber(updatedVehicle.getRegNumber())) {
-            throw new IllegalArgumentException(
-                    "Vehicle with registration number " + updatedVehicle.getRegNumber() + " already exists"
+        if (!existingVehicle.getRegNumber().equals(request.getRegNumber())
+                && vehicleRepository.existsByRegNumber(request.getRegNumber())) {
+            throw new DuplicateResourceException(
+                    "Vehicle with registration number "
+                            + request.getRegNumber()
+                            + " already exists"
             );
         }
 
-        existingVehicle.setRegNumber(updatedVehicle.getRegNumber());
-        existingVehicle.setModel(updatedVehicle.getModel());
-        existingVehicle.setDailyRate(updatedVehicle.getDailyRate());
+        existingVehicle.setRegNumber(request.getRegNumber());
+        existingVehicle.setModel(request.getModel());
+        existingVehicle.setDailyRate(request.getDailyRate());
 
         return vehicleRepository.save(existingVehicle);
     }

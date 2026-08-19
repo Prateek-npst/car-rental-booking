@@ -4,6 +4,8 @@ import com.example.carrental.entity.Vehicle;
 import com.example.carrental.service.VehicleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.example.carrental.dto.VehicleRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,10 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<Vehicle> createVehicle(@RequestBody Vehicle vehicle) {
-        Vehicle createdVehicle = vehicleService.createVehicle(vehicle);
+    public ResponseEntity<Vehicle> createVehicle(
+            @Valid @RequestBody VehicleRequest request
+    ) {
+        Vehicle createdVehicle = vehicleService.createVehicle(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdVehicle);
     }
 
@@ -37,9 +41,9 @@ public class VehicleController {
     @PutMapping("/{id}")
     public ResponseEntity<Vehicle> updateVehicle(
             @PathVariable Long id,
-            @RequestBody Vehicle vehicle
+            @Valid @RequestBody VehicleRequest request
     ) {
-        return ResponseEntity.ok(vehicleService.updateVehicle(id, vehicle));
+        return ResponseEntity.ok(vehicleService.updateVehicle(id, request));
     }
 
     @DeleteMapping("/{id}")
