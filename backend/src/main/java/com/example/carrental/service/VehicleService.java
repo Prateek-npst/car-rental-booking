@@ -6,6 +6,8 @@ import com.example.carrental.exception.DuplicateResourceException;
 import com.example.carrental.exception.ResourceNotFoundException;
 import com.example.carrental.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import com.example.carrental.exception.BadRequestException;
 
 import java.util.List;
 
@@ -14,11 +16,26 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
 
+    private void validateDailyRate(BigDecimal dailyRate) {
+        if (dailyRate == null) {
+            return;
+        }
+
+        if (dailyRate.scale() > 2) {
+            throw new BadRequestException(
+                    "Daily rate cannot have more than 2 decimal places"
+            );
+        }
+    }
+
     public VehicleService(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
     }
 
     public Vehicle createVehicle(VehicleRequest request) {
+
+        validateDailyRate(request.getDailyRate());
+
         if (vehicleRepository.existsByRegNumber(request.getRegNumber())) {
             throw new DuplicateResourceException(
                     "Vehicle with registration number "
@@ -50,6 +67,9 @@ public class VehicleService {
     }
 
     public Vehicle updateVehicle(Long id, VehicleRequest request) {
+
+        validateDailyRate(request.getDailyRate());
+
         Vehicle existingVehicle = getVehicleById(id);
 
         if (!existingVehicle.getRegNumber().equals(request.getRegNumber())

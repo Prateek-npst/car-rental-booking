@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+const TODAY = new Date().toISOString().split("T")[0];
+const MAX_BOOKING_DATE = "2050-12-31";
 
 const emptyForm = {
     customerName: "",
@@ -51,6 +53,11 @@ function BookingForm({
 
         if (!form.customerName.trim()) {
             nextErrors.customerName = "Customer name is required";
+        }
+
+        if (form.customerName.length > 20) {
+            nextErrors.customerName =
+                "Customer name cannot exceed 20 characters";
         }
 
         if (!form.startDate) {
@@ -125,6 +132,7 @@ function BookingForm({
                         name="customerName"
                         value={form.customerName}
                         onChange={handleChange}
+                        maxLength={20}
                         placeholder="e.g. Rahul Sharma"
                     />
 
@@ -176,6 +184,8 @@ function BookingForm({
                         id="startDate"
                         name="startDate"
                         type="date"
+                        min={TODAY}
+                        max={MAX_BOOKING_DATE}
                         value={form.startDate}
                         onChange={handleChange}
                     />
@@ -196,6 +206,8 @@ function BookingForm({
                         id="endDate"
                         name="endDate"
                         type="date"
+                        min={form.startDate || TODAY}
+                        max={MAX_BOOKING_DATE}
                         value={form.endDate}
                         onChange={handleChange}
                     />

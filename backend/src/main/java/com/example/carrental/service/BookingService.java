@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -134,6 +135,27 @@ public class BookingService {
     }
 
     private void validateDateRange(BookingRequest request) {
+
+        LocalDate today = LocalDate.now();
+        LocalDate maxDate = LocalDate.of(2050, 12, 31);
+
+        if (request.getStartDate().isBefore(today)) {
+            throw new BadRequestException(
+                    "Start date cannot be before today"
+            );
+        }
+
+        if (request.getEndDate().isAfter(maxDate)) {
+            throw new BadRequestException(
+                    "End date cannot be after 31 December 2050"
+            );
+        }
+
+        if (request.getStartDate().isAfter(maxDate)) {
+            throw new BadRequestException(
+                    "Start date cannot be after 31 December 2050"
+            );
+        }
 
         if (!request.getStartDate().isBefore(request.getEndDate())) {
             throw new BadRequestException(

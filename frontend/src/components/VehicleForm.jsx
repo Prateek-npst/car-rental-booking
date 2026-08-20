@@ -27,10 +27,52 @@ function VehicleForm({ vehicle, onSubmit, onCancel, loading }) {
     const handleChange = (event) => {
         const { name, value } = event.target;
 
-        setForm((current) => ({
-            ...current,
-            [name]: value,
-        }));
+        if (name === "regNumber") {
+            const formattedValue = value
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "")
+                .slice(0, 12);
+
+            setForm((current) => ({
+                ...current,
+                regNumber: formattedValue,
+            }));
+        } else if (name === "dailyRate") {
+            if (value === "") {
+                setForm((current) => ({
+                    ...current,
+                    dailyRate: "",
+                }));
+
+                return;
+            }
+
+            if (!/^\d*\.?\d*$/.test(value)) {
+                return;
+            }
+
+            const decimalPart = value.split(".")[1];
+
+            if (decimalPart && decimalPart.length > 2) {
+                return;
+            }
+
+            const numericValue = Number(value);
+
+            if (numericValue > 99999.99) {
+                return;
+            }
+
+            setForm((current) => ({
+                ...current,
+                dailyRate: value,
+            }));
+        } else {
+            setForm((current) => ({
+                ...current,
+                [name]: value,
+            }));
+        }
 
         setErrors((current) => ({
             ...current,
@@ -45,12 +87,33 @@ function VehicleForm({ vehicle, onSubmit, onCancel, loading }) {
             nextErrors.regNumber = "Registration number is required";
         }
 
+        if (
+            form.regNumber &&
+            !/^[A-Z0-9]{1,12}$/.test(form.regNumber)
+        ) {
+            nextErrors.regNumber =
+                "Registration number must contain only letters and numbers and be at most 12 characters";
+        }
+
         if (!form.model.trim()) {
             nextErrors.model = "Model is required";
         }
 
+        if (form.model.length > 20) {
+            nextErrors.model =
+                "Model cannot exceed 20 characters";
+        }
+
         if (!form.dailyRate || Number(form.dailyRate) <= 0) {
             nextErrors.dailyRate = "Daily rate must be greater than 0";
+        }
+
+        if (
+            form.dailyRate &&
+            Number(form.dailyRate) > 99999.99
+        ) {
+            nextErrors.dailyRate =
+                "Daily rate cannot exceed 99,999.99";
         }
 
         setErrors(nextErrors);
@@ -99,6 +162,7 @@ function VehicleForm({ vehicle, onSubmit, onCancel, loading }) {
                         name="regNumber"
                         value={form.regNumber}
                         onChange={handleChange}
+                        maxLength={12}
                         placeholder="e.g. MH12AB1234"
                     />
 
@@ -115,6 +179,7 @@ function VehicleForm({ vehicle, onSubmit, onCancel, loading }) {
                         name="model"
                         value={form.model}
                         onChange={handleChange}
+                        maxLength={20}
                         placeholder="e.g. Honda City"
                     />
 
@@ -129,12 +194,11 @@ function VehicleForm({ vehicle, onSubmit, onCancel, loading }) {
                     <input
                         id="dailyRate"
                         name="dailyRate"
-                        type="number"
-                        min="0.01"
-                        step="0.01"
+                        type="text"
+                        inputMode="decimal"
                         value={form.dailyRate}
                         onChange={handleChange}
-                        placeholder="e.g. 2500"
+                        placeholder="e.g. 2500.00"
                     />
 
                     {errors.dailyRate && (

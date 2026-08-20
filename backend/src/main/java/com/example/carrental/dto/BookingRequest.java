@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class BookingRequest {
 
     @NotBlank(message = "Customer name is required")
-    @Size(max = 100, message = "Customer name must not exceed 100 characters")
+    @Size(max = 20, message = "Customer name must not exceed 20 characters")
     private String customerName;
 
     @NotNull(message = "Start date is required")
